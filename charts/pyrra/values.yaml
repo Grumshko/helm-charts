@@ -11,7 +11,7 @@ image:
   # -- Overrides pullpolicy
   pullPolicy: IfNotPresent
   # -- Overrides the image tag
-  tag: ""
+  tag: "v0.8.1"
 
 additionalLabels: {}
   # app: pyrra
@@ -20,6 +20,18 @@ additionalLabels: {}
 extraApiArgs: []
 # -- Extra args for Pyrra's Kubernetes container
 extraKubernetesArgs: []
+
+# -- Extra Volumes for the pod
+extraApiVolumes: []
+  # - name: example
+  #   configMap:
+  #     name: example
+
+# -- Extra Volume Mounts for the container
+extraApiVolumeMounts: []
+  # - name: example
+  #   mountPath: /example
+
 # -- Address to expose operator metrics
 operatorMetricsAddress: ":8080"
 
@@ -34,26 +46,17 @@ serviceAccount:
 
 # -- additional annotations for server pod
 podAnnotations: {}
-# -- security context for pod
-podSecurityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
-# -- security context for each container
-securityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-  readOnlyRootFilesystem: true
+# -- additional security context for server pod
+podSecurityContext: {}
+# -- additional security context for server
+securityContext: {}
 
-
-# -- URL to prometheus instance with metrics
+# -- url to prometheus instance with metrics
 prometheusUrl: http://prometheus-operated.monitoring.svc.cluster.local:9090
-# -- URL to public-facing prometheus UI in case it differs from prometheusUrl
+# -- url to public-facing prometheus UI in case it differs from prometheusUrl
 prometheusExternalUrl: ""
 
-# -- URL under which the pyrra web server is serving content. this can be set when running behind a reverse proxy.
+# -- url under which the pyrra web server is serving content. this can be set when running behind a reverse proxy.
 # -- Must start with a slash and not end with a slash.
 routePrefix: ""
 
@@ -91,22 +94,17 @@ ingress:
   #      - chart-example.local
 
 # -- resource limits and requests for server pod
-resources:
-  limits:
-    memory: 128Mi
-  requests:
-    cpu: 10m
-    memory: 128Mi
-
-# -- All settings related to the "operator" kubernetes container
-operator:
-  # -- resource limits and requests
-  resources:
-    limits:
-      memory: 128Mi
-    requests:
-      cpu: 10m
-      memory: 128Mi
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 30Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 20Mi
 
 # -- node selector for scheduling server pod
 nodeSelector: {}
@@ -157,8 +155,6 @@ genericRules:
 validatingWebhookConfiguration:
   # -- enables admission webhook for server to validate SLOs, this requires cert-manager to be installed
   enabled: false
-  # -- 'Fail' or 'Ignore' are valid values
-  failurePolicy: Fail
 
 dashboards:
   # -- enables Grafana dashboards being deployed via configmap
